@@ -1,0 +1,72 @@
+// Make env var for LOCAL=true so that we can reset/use db locally
+//def useCustomDatabase = System.getenv('LOCAL') == null
+def useCustomDatabase = false
+
+def primaryDbPort = System.getenv('DATABASE_PORT') ?: 5432
+def primaryDbName = System.getenv('DATABASE_NAME') ?: 'mmo_server'
+def primaryDbUser = System.getenv('DATABASE_USERNAME') ?: 'mmo_server'
+def primaryDbPassword = System.getenv('DATABASE_PASSWORD') ?: 'password123'
+
+def testPostgresPW = primaryDbPassword
+def postgresDockerCN = "mmo_server_local"
+def postgresDatabaseName = primaryDbName
+def testPostgresPort = primaryDbPort
+def testPostgresUser = primaryDbUser
+
+task startPostgresDatabase(type: Exec) {
+    commandLine 'docker'
+    args = ['run', '-d', "-p=$testPostgresPort:5432",
+            "-e", "POSTGRES_DB=$postgresDatabaseName",
+            "-e", "POSTGRES_USER=$testPostgresUser",
+            "-e", "POSTGRES_PASSWORD=$testPostgresPW",
+            "-e", "PGDATA=/var/lib/pgsql_docker/data",
+            "--name=$postgresDockerCN",
+            "--rm", "postgres:9.6",
+            'postgres',
+            '-c', 'max_connections=500',
+            '-c', 'shared_buffers=1GB']
+
+    def runContainerCmd = { String... cmd -> ['docker', 'exec', postgresDockerCN, *cmd].execute() }
+    def isEntrypointComplete = {
+        // Check if process 1 is postgres (i.e., docker-entrypoint has finished)
+        def stdOut = new StringBuilder()
+        def proc = runContainerCmd('ps', '-o', 'command', '--no-headers', '1')
+        proc.consumeProcessOutputStream(stdOut)
+        proc.waitForOrKill(1000)
+        return proc.exitValue() == 0 && stdOut.toString().trim() == 'postgres'
+    }
+    def isDatabaseReady = {
+        // Check that we can execute 'SELECT 1;' in database
+        def proc = runContainerCmd('psql', '-U', testPostgresUser, "-d", postgresDatabaseName, '-c', 'SELECT 1;')
+        proc.waitForOrKill(1000)
+        return proc.exitValue() == 0
+    }
+    def containerExists = {
+        def proc = ['docker', 'inspect', '-f=-', postgresDockerCN].execute()
+        proc.waitForOrKill(1000)
+        return proc.exitValue() == 0
+    }
+
+    doLast {
+        logger.quiet('Waiting for postgres database to be ready (container = {})', postgresDockerCN)
+        def startTime = System.currentTimeMillis()
+        def timeout = 30000
+        while (System.currentTimeMillis() < startTime + timeout) {
+            if (isEntrypointComplete() || isDatabaseReady()) {
+                return
+            }
+            Thread.sleep(100)
+        }
+        throw new RuntimeException("Postgres wasn't ready in ${timeout / 1000}s")
+    }
+    onlyIf {
+        return !useCustomDatabase && !containerExists()
+    }
+}
+
+task deletePostgresDatabase(type: Exec) {
+    commandLine 'docker'
+    args = ['rm', '-f', postgresDockerCN]
+    ignoreExitValue = true
+    onlyIf { !useCustomDatabase }
+}
