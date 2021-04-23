@@ -1,5 +1,8 @@
 ## Micronaut + Postgres (on docker) + Jooq + Flyway + Lombok template
 
+To see where components are configured, see mini tutorial on youtube:
+https://www.youtube.com/watch?v=PF_Bg6CgMts&t=16s
+
 ## Micronaut 2.4.1 Documentation
 
 - [User Guide](https://docs.micronaut.io/2.4.1/guide/index.html)
