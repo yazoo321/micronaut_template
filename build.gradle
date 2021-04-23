@@ -122,6 +122,10 @@ dependencies {
     implementation("io.micronaut.sql:micronaut-jooq")
     jooqGenerator 'org.postgresql:postgresql:42.2.14'
     implementation 'org.postgresql:postgresql:42.2.14'
+
+    // security
+    compileOnly "io.micronaut.security:micronaut-security-annotations"
+    implementation "io.micronaut.security:micronaut-security-jwt"
 }
 
 application {

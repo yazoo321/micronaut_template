@@ -17,6 +17,9 @@
 In order to build the project run:
 `./gradlew build`
 
+In order to remove the docker container and its database, run
+`docker rm -f -v <container_name>`
+
 This project is a base template for getting started with 
 micronaut + postgres + jooq + flyway + lombok.
 

@@ -16,6 +16,9 @@ public class AccountService {
     public Account fetchAccount(String username) {
         Users user = accountRepository.fetchByUsername(username);
 
+        if (null == user) {
+            return new Account();
+        }
         return new Account(user.getUsername(), user.getEmail());
     }
 }
