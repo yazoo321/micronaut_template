@@ -7,14 +7,14 @@ plugins {
 }
 
 version = "0.1"
-group = "mmo_server"
+group = "micronaut_template"
 
 def dbDriver = System.getenv('DATABASE_DRIVER') ?: 'org.postgresql.Driver'
-def dbUser = System.getenv('DATABASE_USER') ?: 'mmo_server'
+def dbUser = System.getenv('DATABASE_USER') ?: 'micronaut_template'
 def dbPassword = System.getenv('DATABASE_PASSWORD') ?: 'password123'
 def dbHost = System.getenv('DATABASE_HOST') ?: '127.0.0.1'
 def dbPort = System.getenv('DATABASE_PORT') ?: 5432
-def dbName = System.getenv('DATABASE_NAME') ?: 'mmo_server'
+def dbName = System.getenv('DATABASE_NAME') ?: 'micronaut_template'
 def dbUrl = System.getenv('DATABASE_URL') ?: "jdbc:postgresql://$dbHost:$dbPort/$dbName"
 
 jooq {
@@ -62,7 +62,7 @@ jooq {
                         daos = true
                     }
                     target {
-                        packageName = 'com.org.mmo_server.repository.model'
+                        packageName = 'com.org.micronaut_template.repository.model'
                     }
                     strategy.name = 'org.jooq.codegen.DefaultGeneratorStrategy'
                 }
@@ -95,7 +95,7 @@ micronaut {
     testRuntime("junit5")
     processing {
         incremental(true)
-        annotations("mmo_server.*")
+        annotations("micronaut_template.*")
     }
 }
 
@@ -126,10 +126,15 @@ dependencies {
     // security
     compileOnly "io.micronaut.security:micronaut-security-annotations"
     implementation "io.micronaut.security:micronaut-security-jwt"
+    implementation "org.springframework.security:spring-security-crypto:5.2.1.RELEASE"
+
+    // transactional annotation
+    implementation("io.micronaut.spring:micronaut-spring")
+
 }
 
 application {
-    mainClass.set("mmo_server.Application")
+    mainClass.set("micronaut_template.Application")
 }
 
 java {

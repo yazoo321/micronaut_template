@@ -1,5 +1,5 @@
 applicationType: default
-defaultPackage: mmo_server
+defaultPackage: micronaut_template
 testFramework: junit
 sourceLanguage: java
 buildTool: gradle

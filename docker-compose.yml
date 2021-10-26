@@ -1,10 +1,10 @@
 version: '2'
 services:
-  mmo_server:
+  micronaut_template:
     image: postgres:9.6
     environment:
-      - POSTGRES_DB=mmo_server
-      - POSTGRES_USER=mmo_server
+      - POSTGRES_DB=micronaut_template
+      - POSTGRES_USER=micronaut_template
       - POSTGRES_PASSWORD=password123
       - PGDATA=/var/lib/pgsql_docker/data
     ports:

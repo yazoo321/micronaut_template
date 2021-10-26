@@ -1,9 +1,10 @@
 micronaut:
   application:
-    name: mmo_server
+    name: micronaut_template
   server:
     port: 8081
   security:
+    enabled: true
     authentication: bearer
     token:
       jwt:
@@ -21,12 +22,12 @@ jpa:
     entity-scan:
       classpath: true
       packages:
-        - 'com.org.mmo_server.repository.model'
+        - 'com.org.micronaut_template.repository.model'
 
 datasources:
   default:
-    url: jdbc:postgresql://127.0.0.1/mmo_server
-    username: mmo_server
+    url: jdbc:postgresql://127.0.0.1/micronaut_template
+    username: micronaut_template
     password: password123
     driverClassName: org.postgresql.Driver
     hikari:

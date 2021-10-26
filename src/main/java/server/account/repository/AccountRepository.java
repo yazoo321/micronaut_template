@@ -1,25 +1,29 @@
 package server.account.repository;
 
-import com.org.mmo_server.repository.model.tables.daos.UserRolesDao;
-import com.org.mmo_server.repository.model.tables.daos.UsersDao;
-import com.org.mmo_server.repository.model.tables.pojos.UserRoles;
-import com.org.mmo_server.repository.model.tables.pojos.Users;
+import com.org.micronaut_template.repository.model.tables.daos.UserRolesDao;
+import com.org.micronaut_template.repository.model.tables.daos.UsersDao;
+import com.org.micronaut_template.repository.model.tables.pojos.UserRoles;
+import com.org.micronaut_template.repository.model.tables.pojos.Users;
+import org.jooq.Configuration;
+import org.jooq.DSLContext;
+import server.account.dto.AccountRoles;
+import server.security.BCryptPasswordEncoderService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.jooq.Configuration;
-import org.jooq.DSLContext;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.org.mmo_server.repository.model.tables.Users.*;
+import static com.org.micronaut_template.repository.model.tables.Users.USERS;
 
 @Singleton
 public class AccountRepository {
     // Use DSL context for higher performance results
     @Inject
     DSLContext dslContext;
+
+    @Inject
+    BCryptPasswordEncoderService bCryptPasswordEncoderService;
 
     UsersDao usersDao;
     UserRolesDao userRolesDao;
@@ -34,11 +38,15 @@ public class AccountRepository {
     }
 
     public boolean validCredentials(String username, String password) {
-        Users user = dslContext.selectFrom(USERS)
-                .where(USERS.USERNAME.equal(username).and(USERS.PASSWORD.equal(password)))
-                .fetchAnyInto(Users.class);
 
-        return null != user;
+        Users user = dslContext.selectFrom(USERS)
+                .where(USERS.USERNAME.equal(username))
+                .fetchAnyInto(Users.class);
+        if (null == user) {
+            return false;
+        }
+
+        return bCryptPasswordEncoderService.matches(password, user.getPassword());
     }
 
     public List<String> getRolesForUser(String username) {
@@ -47,4 +55,16 @@ public class AccountRepository {
                 .map(UserRoles::getRole)
                 .collect(Collectors.toList());
     }
+
+    public Users createUser(Users user) {
+        usersDao.insert(user);
+        UserRoles userRoles = new UserRoles();
+        userRoles.setUsername(user.getUsername());
+        userRoles.setRole(AccountRoles.ROLE_USER.role);
+        userRolesDao.insert(userRoles);
+
+        return user;
+    }
+
 }
+
