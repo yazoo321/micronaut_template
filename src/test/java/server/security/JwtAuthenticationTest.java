@@ -5,18 +5,17 @@ import com.nimbusds.jwt.SignedJWT;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.http.client.RxHttpClient;
+import io.micronaut.http.client.HttpClient;
 import io.micronaut.http.client.exceptions.HttpClientResponseException;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.security.authentication.UsernamePasswordCredentials;
 import io.micronaut.security.token.jwt.render.BearerAccessRefreshToken;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
-import io.reactivex.Flowable;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.*;
 import server.account.dto.Account;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 
@@ -29,7 +28,7 @@ public class JwtAuthenticationTest {
 
     @Inject
     EmbeddedServer embeddedServer;
-    RxHttpClient client;
+    HttpClient client;
 
     @Inject
     DSLContext dslContext;
@@ -47,7 +46,7 @@ public class JwtAuthenticationTest {
         seedDb();
 
         client = embeddedServer.getApplicationContext()
-                .createBean(RxHttpClient.class, embeddedServer.getURL());
+                .createBean(HttpClient.class, embeddedServer.getURL());
     }
 
     @AfterAll
@@ -81,23 +80,23 @@ public class JwtAuthenticationTest {
     @Test
     void testProtectedEndpointThrowsOnUnauthorized() {
         // when
-        Flowable<Account> response = client.retrieve(
-                HttpRequest.GET(GET_USER_PATH), Account.class
-        );
+
 
         // then
-        Assertions.assertThrows(HttpClientResponseException.class, response::blockingFirst);
+        Assertions.assertThrows(HttpClientResponseException.class, () ->  client.toBlocking().retrieve(
+                HttpRequest.GET(GET_USER_PATH), Account.class
+        ));
     }
 
     @Test
     void testProtectedEndpointReturnsExpectedWhenAuthorizedWithBasicAuth() {
         // when
-        Flowable<Account> response = client.retrieve(
+       Account response = client.toBlocking().retrieve(
                 HttpRequest.GET(GET_USER_PATH).basicAuth(VALID_USER, VALID_PW), Account.class);
 
         // then
-        Assertions.assertEquals(VALID_USER, response.blockingFirst().getUsername());
-        Assertions.assertEquals(VALID_EMAIL, response.blockingFirst().getEmail());
+        Assertions.assertEquals(VALID_USER, response.getUsername());
+        Assertions.assertEquals(VALID_EMAIL, response.getEmail());
     }
 
     @Test
@@ -131,10 +130,11 @@ public class JwtAuthenticationTest {
         BearerAccessRefreshToken bearerAccessRefreshToken = rsp.body();
         String accessToken = bearerAccessRefreshToken.getAccessToken();
 
-        Flowable<Account> response = client.retrieve(
+        Account response = client.toBlocking().retrieve(
                 HttpRequest.GET(GET_USER_PATH).bearerAuth(accessToken), Account.class);
 
-        Assertions.assertEquals(VALID_USER, response.blockingFirst().getUsername());
-        Assertions.assertEquals(VALID_EMAIL, response.blockingFirst().getEmail());
+
+        Assertions.assertEquals(VALID_USER, response.getUsername());
+        Assertions.assertEquals(VALID_EMAIL, response.getEmail());
     }
 }

@@ -9,8 +9,8 @@ import org.jooq.DSLContext;
 import server.account.dto.AccountRoles;
 import server.security.BCryptPasswordEncoderService;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import java.util.List;
 import java.util.stream.Collectors;
 

@@ -9,7 +9,7 @@ import server.account.dto.Account;
 import server.account.dto.RegisterDto;
 import server.account.service.AccountService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Secured(SecurityRule.IS_ANONYMOUS)
 @Controller

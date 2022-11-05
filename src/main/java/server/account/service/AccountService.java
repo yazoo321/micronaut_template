@@ -1,13 +1,13 @@
 package server.account.service;
 
 import com.org.micronaut_template.repository.model.tables.pojos.Users;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import server.account.dto.Account;
 import server.account.dto.RegisterDto;
 import server.account.repository.AccountRepository;
 import server.security.BCryptPasswordEncoderService;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.time.LocalDateTime;
 
 @Singleton
