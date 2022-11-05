@@ -1,7 +1,7 @@
 version: '2'
 services:
   micronaut_template:
-    image: postgres:9.6
+    image: postgres:15.0
     environment:
       - POSTGRES_DB=micronaut_template
       - POSTGRES_USER=micronaut_template

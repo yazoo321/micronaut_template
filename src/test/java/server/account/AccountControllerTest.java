@@ -4,7 +4,7 @@ import com.org.micronaut_template.repository.model.tables.UserRoles;
 import com.org.micronaut_template.repository.model.tables.pojos.Users;
 import io.micronaut.http.HttpRequest;
 import io.micronaut.http.HttpResponse;
-import io.micronaut.http.client.RxHttpClient;
+import io.micronaut.http.client.HttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.jooq.DSLContext;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.*;
 import server.account.dto.Account;
 import server.account.dto.RegisterDto;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 import static com.org.micronaut_template.repository.model.tables.Users.USERS;
 
@@ -27,14 +27,14 @@ public class AccountControllerTest {
     private static String TEST_EMAIL = "someEmail";
     @Inject
     EmbeddedServer embeddedServer;
-    RxHttpClient client;
+    HttpClient client;
     @Inject
     DSLContext dslContext;
 
     @BeforeAll
     void setup() {
         client = embeddedServer.getApplicationContext()
-                .createBean(RxHttpClient.class, embeddedServer.getURL());
+                .createBean(HttpClient.class, embeddedServer.getURL());
     }
 
     @BeforeEach

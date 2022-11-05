@@ -8,7 +8,7 @@ import io.micronaut.security.rules.SecurityRule;
 import server.account.dto.Account;
 import server.account.service.AccountService;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 @Secured(SecurityRule.IS_AUTHENTICATED)
 @Controller("/account")
